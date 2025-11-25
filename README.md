@@ -74,6 +74,14 @@ src/
 3. **View Triage** - See AI-calculated scores and routing
 4. **Track Status** - Monitor claim progress in real-time
 
+## Using the Platform
+
+1. Launch the app and follow the FNOL assistant prompts. It will collect policy, incident, location, damage, and optional context in sequence.
+2. When prompted, upload clear photos of the vehicle; AI damage detection runs automatically and feeds into triage scores.
+3. After the assistant shows the claim summary, confirm to submit and note the generated claim ID.
+4. Use the `View Triage Analysis` CTA to inspect complexity, severity, fraud risk, and routing recommendations.
+5. Use the `Track Claim Status` CTA to view the live progress timeline, adjuster assignment, and notification feed.
+
 ## License
 
 MIT
