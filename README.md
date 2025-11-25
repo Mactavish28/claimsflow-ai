@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClaimsFlow AI
+
+AI-powered vehicle insurance claims processing platform with intelligent FNOL, predictive triage, and real-time status tracking.
+
+## Features
+
+### 🤖 Screen 1: Intelligent FNOL Agent
+- Conversational AI interface with dynamic questioning
+- Real-time policy verification and data enrichment
+- Smart photo upload with AI damage detection
+- Emotional state detection and escalation handling
+
+### 📊 Screen 2: Triage & Assignment Dashboard
+- Multi-dimensional claim scoring (Complexity, Severity, Fraud Risk, Customer Value, Urgency)
+- AI-powered routing recommendations
+- Straight-Through Processing (STP) identification
+- Estimated resolution timelines
+
+### 📱 Screen 3: Claim Status Portal
+- Visual progress timeline
+- Real-time notification feed
+- Assigned adjuster information
+- Self-service claim tracking
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS
+- **State Management:** Zustand with localStorage persistence
+- **Icons:** Lucide React
+- **Deployment:** Vercel-ready
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                    # Next.js App Router pages
+├── components/
+│   ├── chat/              # FNOL chat components
+│   ├── triage/            # Triage dashboard components
+│   └── status/            # Status portal components
+├── store/                 # Zustand state management
+└── types/                 # TypeScript type definitions
+```
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Mactavish28/claimsflow-ai)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push to GitHub
+2. Import project in Vercel
+3. Deploy (zero configuration needed)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Demo Flow
 
-## Deploy on Vercel
+1. **Start at Home** - Interactive FNOL chat interface
+2. **Complete FNOL** - Submit claim details with photos
+3. **View Triage** - See AI-calculated scores and routing
+4. **Track Status** - Monitor claim progress in real-time
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
