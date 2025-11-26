@@ -367,9 +367,17 @@ You can track your claim status anytime through the Claims Portal.`,
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3">
-        <h1 className="text-lg font-semibold text-gray-900">ClaimsFlow AI</h1>
-        <p className="text-sm text-gray-500">Intelligent FNOL Assistant</p>
+      <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
+        <div>
+          <h1 className="text-lg font-semibold text-gray-900">ClaimsFlow AI</h1>
+          <p className="text-sm text-gray-500">Intelligent FNOL Assistant</p>
+        </div>
+        <button
+          onClick={() => router.push('/dashboard')}
+          className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        >
+          Adjuster View
+        </button>
       </div>
 
       {/* Messages */}
@@ -445,22 +453,22 @@ You can track your claim status anytime through the Claims Portal.`,
       {/* Input */}
       {!claimComplete && !showAccidentTypes && !showPhotoUpload && (
         <div className="bg-white border-t border-gray-200 px-4 py-3">
-          <div className="flex gap-2">
+          <div className="flex items-center gap-3">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Type your message..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-2.5 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               disabled={isTyping}
             />
             <button
               onClick={handleSend}
               disabled={!input.trim() || isTyping}
-              className="p-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-10 h-10 flex items-center justify-center bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shrink-0"
             >
-              <Send className="w-5 h-5" />
+              <Send className="w-4 h-4" />
             </button>
           </div>
         </div>

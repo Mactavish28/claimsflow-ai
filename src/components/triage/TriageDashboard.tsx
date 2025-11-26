@@ -14,10 +14,105 @@ import {
   Zap,
   TrendingUp,
   FileText,
+  Camera,
+  FileCheck,
+  ShieldCheck,
 } from 'lucide-react';
 import { ScoreCard } from './ScoreCard';
 import { useClaimStore } from '@/store/claimStore';
 import { Claim, ClaimScores, RoutingRecommendation } from '@/types/claim';
+
+function generateDynamicInsights(claim: Claim, scores: ClaimScores): { icon: React.ReactNode; text: string }[] {
+  const insights: { icon: React.ReactNode; text: string }[] = [];
+
+  if (claim.photos.length >= 3) {
+    insights.push({
+      icon: <Camera className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: `${claim.photos.length} photos uploaded — sufficient documentation for faster assessment`,
+    });
+  } else if (claim.photos.length > 0) {
+    insights.push({
+      icon: <Camera className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: `${claim.photos.length} photo(s) received — additional photos may speed up processing`,
+    });
+  } else {
+    insights.push({
+      icon: <Camera className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: 'No photos uploaded — your adjuster may request photos to proceed',
+    });
+  }
+
+  if (claim.description.length > 100) {
+    insights.push({
+      icon: <FileCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: 'Detailed incident description provided — helps expedite review',
+    });
+  } else {
+    insights.push({
+      icon: <FileCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: 'Brief description noted — your adjuster may follow up for more details',
+    });
+  }
+
+  if (scores.complexity <= 4 && scores.severity <= 4) {
+    insights.push({
+      icon: <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: 'Claim complexity is low — eligible for expedited processing',
+    });
+  } else if (scores.complexity >= 7 || scores.severity >= 7) {
+    insights.push({
+      icon: <ShieldCheck className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: 'Claim requires specialist review — assigned to experienced adjuster',
+    });
+  }
+
+  switch (claim.accidentType) {
+    case 'collision':
+      insights.push({
+        icon: <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+        text: 'Collision claims typically resolve within 2-3 weeks with complete documentation',
+      });
+      break;
+    case 'theft':
+      insights.push({
+        icon: <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+        text: 'Theft claim registered — police report will be requested if not already provided',
+      });
+      break;
+    case 'hit_and_run':
+      insights.push({
+        icon: <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+        text: 'Hit-and-run claims are prioritized — your adjuster will contact you within 24 hours',
+      });
+      break;
+    case 'weather':
+      insights.push({
+        icon: <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+        text: 'Weather-related damage confirmed — no additional verification typically required',
+      });
+      break;
+    case 'vandalism':
+      insights.push({
+        icon: <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+        text: 'Vandalism claim noted — police report recommended for faster processing',
+      });
+      break;
+    default:
+      insights.push({
+        icon: <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+        text: 'Your claim is being processed according to standard procedures',
+      });
+  }
+
+  if (scores.urgency >= 7) {
+    insights.push({
+      icon: <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" />,
+      text: 'High priority flag applied — expect faster initial contact',
+    });
+  }
+
+  return insights.slice(0, 4);
+}
 
 interface TriageDashboardProps {
   claimId: string;
@@ -301,24 +396,20 @@ export function TriageDashboard({ claimId }: TriageDashboardProps) {
           </div>
         )}
 
-        {/* Additional Insights */}
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
-          <h3 className="font-semibold mb-2">AI-Powered Insights</h3>
-          <ul className="space-y-2 text-sm text-blue-100">
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              Similar claims in this region have 87% settlement rate within target time
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              No prior claims on this policy - lower fraud probability
-            </li>
-            <li className="flex items-start gap-2">
-              <CheckCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-              Photo quality score: 85% - sufficient for remote assessment
-            </li>
-          </ul>
-        </div>
+        {/* Dynamic Insights */}
+        {scores && (
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl p-6 text-white">
+            <h3 className="font-semibold mb-2">Claim Analysis Summary</h3>
+            <ul className="space-y-2 text-sm text-blue-100">
+              {generateDynamicInsights(claim, scores).map((insight, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  {insight.icon}
+                  {insight.text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

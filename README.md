@@ -69,18 +69,53 @@ src/
 
 ## Demo Flow
 
-1. **Start at Home** - Interactive FNOL chat interface
-2. **Complete FNOL** - Submit claim details with photos
-3. **View Triage** - See AI-calculated scores and routing
-4. **Track Status** - Monitor claim progress in real-time
+### Quick Start (2-minute demo)
 
-## Using the Platform
+1. **File a Claim** → Go to `/` and chat with the FNOL assistant
+2. **Enter any policy number** (e.g., `POL123`) → system simulates lookup
+3. **Select accident type** → pick from collision, theft, hit-and-run, etc.
+4. **Answer prompts** → date, location, damage description
+5. **Upload photos** (optional) → or click "Skip"
+6. **Confirm submission** → type "yes" when shown the summary
 
-1. Launch the app and follow the FNOL assistant prompts. It will collect policy, incident, location, damage, and optional context in sequence.
-2. When prompted, upload clear photos of the vehicle; AI damage detection runs automatically and feeds into triage scores.
-3. After the assistant shows the claim summary, confirm to submit and note the generated claim ID.
-4. Use the `View Triage Analysis` CTA to inspect complexity, severity, fraud risk, and routing recommendations.
-5. Use the `Track Claim Status` CTA to view the live progress timeline, adjuster assignment, and notification feed.
+### See AI Triage
+
+7. Click **"View Triage Analysis"** after submission
+8. Watch the AI analysis animation (scores calculate in real-time)
+9. Review the 5 score cards: Complexity, Severity, Fraud Risk, Customer Value, Urgency
+10. Note the **dynamic insights** — they change based on your inputs (photos, description length, accident type)
+11. Click **"Confirm Assignment & View Status"**
+
+### Watch Real-Time Simulation
+
+12. On the Status page, click **"Start Demo"** (purple banner)
+13. Watch the timeline animate through all stages every 2.5 seconds:
+    - Claim Submitted → Triage → Assigned → Investigation → Assessment → Settlement → Closed
+14. Notifications appear as each stage completes
+15. Click **"Reset"** to run the simulation again
+
+### Adjuster Dashboard (Ops View)
+
+16. Click **"Adjuster View"** (top-right of chat screen) or go to `/dashboard`
+17. See all submitted claims with scores, risk flags, and routing
+18. Filter by: All / Pending Triage / Active / Closed
+19. Click any claim row to view its status page
+
+## Key URLs
+
+| Page | URL | Description |
+|------|-----|-------------|
+| FNOL Chat | `/` | File a new claim via conversational AI |
+| Triage Dashboard | `/triage/[claimId]` | View AI scores and routing |
+| Status Portal | `/status/[claimId]` | Track claim progress + run simulation |
+| Adjuster Dashboard | `/dashboard` | Ops view of all claims |
+
+## Features to Highlight
+
+- **Dynamic AI Insights**: Triage insights change based on actual claim data (photo count, description length, accident type)
+- **Two-Sided Product**: Both customer (FNOL, Status) and ops (Dashboard) experiences
+- **Real-Time Simulation**: Animated claim lifecycle for demo purposes
+- **Persistent State**: Claims survive page refresh (localStorage)
 
 ## License
 

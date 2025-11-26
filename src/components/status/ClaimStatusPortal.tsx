@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CheckCircle,
@@ -10,15 +10,68 @@ import {
   Bell,
   User,
   Car,
-  MapPin,
   Calendar,
   ArrowLeft,
   Loader2,
   ChevronRight,
+  Lightbulb,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
 import { useClaimStore } from '@/store/claimStore';
 import { Claim, ClaimStatus } from '@/types/claim';
 import { format } from 'date-fns';
+
+const STATUS_PROGRESSION: ClaimStatus[] = [
+  'fnol_complete',
+  'triage',
+  'assigned',
+  'investigation',
+  'assessment',
+  'settlement',
+  'closed',
+];
+
+const STATUS_MESSAGES: Record<ClaimStatus, string> = {
+  fnol_in_progress: 'Claim submission in progress',
+  fnol_complete: 'Your claim has been successfully submitted',
+  triage: 'AI is analyzing your claim details and calculating priority',
+  assigned: 'Your claim has been assigned to a specialist adjuster',
+  investigation: 'Adjuster is gathering evidence and reviewing documentation',
+  assessment: 'Damage assessment complete — calculating repair costs',
+  settlement: 'Settlement approved — processing your payment',
+  closed: 'Claim resolved successfully — thank you for choosing us',
+};
+
+function getStatusTips(claim: Claim): string[] {
+  const tips: string[] = [];
+  
+  if (claim.photos.length === 0) {
+    tips.push('Upload photos of the damage to help speed up your claim assessment.');
+  }
+  
+  if (claim.status === 'assigned' || claim.status === 'investigation') {
+    tips.push('Your adjuster may contact you soon — keep your phone accessible.');
+  }
+  
+  if (claim.accidentType === 'theft' || claim.accidentType === 'hit_and_run') {
+    tips.push('Have your police report number ready if requested.');
+  }
+  
+  if (claim.status === 'assessment') {
+    tips.push('Repair estimates are being reviewed — you\'ll receive an update shortly.');
+  }
+  
+  if (claim.status === 'settlement') {
+    tips.push('Settlement is being processed — check your registered payment method.');
+  }
+
+  if (tips.length === 0) {
+    tips.push('Your claim is progressing normally. We\'ll notify you of any updates.');
+  }
+  
+  return tips.slice(0, 2);
+}
 
 interface ClaimStatusPortalProps {
   claimId: string;
@@ -66,19 +119,65 @@ export function ClaimStatusPortal({ claimId }: ClaimStatusPortalProps) {
   const router = useRouter();
   const [claim, setClaim] = useState<Claim | null>(null);
   const [loading, setLoading] = useState(true);
-  const { getClaim, updateClaim } = useClaimStore();
+  const [simulating, setSimulating] = useState(false);
+  const { getClaim, updateClaim, addNotification } = useClaimStore();
+
+  const refreshClaim = useCallback(() => {
+    const fetchedClaim = getClaim(claimId);
+    if (fetchedClaim) {
+      setClaim(fetchedClaim);
+    }
+  }, [claimId, getClaim]);
 
   useEffect(() => {
     const fetchedClaim = getClaim(claimId);
     if (fetchedClaim) {
       setClaim(fetchedClaim);
-      // Mark notifications as read
       updateClaim(claimId, {
         notifications: fetchedClaim.notifications.map((n) => ({ ...n, read: true })),
       });
     }
     setLoading(false);
   }, [claimId, getClaim, updateClaim]);
+
+  const advanceStatus = useCallback(() => {
+    if (!claim) return false;
+    const currentIndex = STATUS_PROGRESSION.indexOf(claim.status);
+    if (currentIndex === -1 || currentIndex >= STATUS_PROGRESSION.length - 1) {
+      return false;
+    }
+    const nextStatus = STATUS_PROGRESSION[currentIndex + 1];
+    updateClaim(claimId, { status: nextStatus });
+    addNotification(claimId, {
+      type: 'status_update',
+      message: STATUS_MESSAGES[nextStatus],
+      read: false,
+    });
+    refreshClaim();
+    return nextStatus !== 'closed';
+  }, [claim, claimId, updateClaim, addNotification, refreshClaim]);
+
+  const startSimulation = () => {
+    if (simulating || !claim || claim.status === 'closed') return;
+    setSimulating(true);
+  };
+
+  const resetClaim = () => {
+    setSimulating(false);
+    updateClaim(claimId, { status: 'fnol_complete' });
+    refreshClaim();
+  };
+
+  useEffect(() => {
+    if (!simulating) return;
+    const interval = setInterval(() => {
+      const shouldContinue = advanceStatus();
+      if (!shouldContinue) {
+        setSimulating(false);
+      }
+    }, 2500);
+    return () => clearInterval(interval);
+  }, [simulating, advanceStatus]);
 
   const getCurrentStepIndex = () => {
     if (!claim) return 0;
@@ -147,6 +246,50 @@ export function ClaimStatusPortal({ claimId }: ClaimStatusPortalProps) {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* Simulation Controls */}
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl p-4 mb-6 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold">Live Claim Simulation</p>
+              <p className="text-sm text-indigo-100">
+                {simulating
+                  ? 'Simulating claim progression...'
+                  : claim?.status === 'closed'
+                  ? 'Claim completed — reset to simulate again'
+                  : 'Watch your claim progress through each stage in real-time'}
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {claim?.status !== 'closed' && (
+                <button
+                  onClick={startSimulation}
+                  disabled={simulating}
+                  className="flex items-center gap-2 px-4 py-2 bg-white text-indigo-600 rounded-lg font-medium text-sm hover:bg-indigo-50 transition-colors disabled:opacity-50"
+                >
+                  {simulating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Running...
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4" />
+                      Start Demo
+                    </>
+                  )}
+                </button>
+              )}
+              <button
+                onClick={resetClaim}
+                className="flex items-center gap-2 px-4 py-2 bg-white/20 text-white rounded-lg font-medium text-sm hover:bg-white/30 transition-colors"
+              >
+                <RotateCcw className="w-4 h-4" />
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Progress Timeline */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
           <h2 className="font-semibold text-gray-900 mb-6">Claim Progress</h2>
@@ -334,8 +477,24 @@ export function ClaimStatusPortal({ claimId }: ClaimStatusPortalProps) {
           </div>
         </div>
 
+        {/* Tips for User */}
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+          <h3 className="font-medium text-amber-900 mb-2 flex items-center gap-2">
+            <Lightbulb className="w-4 h-4" />
+            Tips for Your Claim
+          </h3>
+          <ul className="space-y-1">
+            {getStatusTips(claim).map((tip, index) => (
+              <li key={index} className="text-sm text-amber-800 flex items-start gap-2">
+                <span className="text-amber-500">•</span>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </div>
+
         {/* Quick Actions */}
-        <div className="mt-6 grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <button
             onClick={() => router.push(`/triage/${claimId}`)}
             className="p-4 bg-white rounded-xl shadow-sm border border-gray-200 flex items-center justify-between hover:bg-gray-50 transition-colors"

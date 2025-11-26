@@ -8,6 +8,19 @@ interface ChatMessageProps {
   message: ChatMessageType;
 }
 
+function formatContent(content: string): React.ReactNode {
+  const lines = content.split('\n');
+  return lines.map((line, i) => {
+    const formatted = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    return (
+      <span key={i}>
+        {i > 0 && <br />}
+        <span dangerouslySetInnerHTML={{ __html: formatted }} />
+      </span>
+    );
+  });
+}
+
 export function ChatMessage({ message }: ChatMessageProps) {
   const isAssistant = message.role === 'assistant';
   const isSystem = message.role === 'system';
@@ -39,7 +52,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
             : 'bg-blue-600 text-white'
         }`}
       >
-        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+        <div className="text-sm leading-relaxed">{formatContent(message.content)}</div>
 
         {message.metadata?.aiHint && (
           <div className="mt-2 pt-2 border-t border-gray-200">
